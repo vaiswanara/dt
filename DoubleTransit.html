@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Marriage Yoga Analyzer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -9,6 +10,7 @@
             color: #222;
             text-align: center;
             padding: 20px;
+            box-sizing: border-box;
         }
 
         h2 {
@@ -33,6 +35,9 @@
             padding: 0;
             border-radius: 0;
             box-shadow: none;
+            width: 100%;
+            max-width: 350px;
+            margin: 0 auto;
         }
 
         .rashi-box {
@@ -191,7 +196,8 @@
             .analysis-grid { flex-direction: column; }
         }
 
-
+        .table-wrapper { overflow-x: auto; width: 100%; }
+        .table-wrapper table { min-width: 520px; }
 
         @media (max-width: 800px) {
             .rashi-chart { grid-template-columns: repeat(4, 70px); grid-template-rows: repeat(4,70px); }
@@ -208,6 +214,7 @@
         .csv-errors li { margin-bottom: 4px; }
 
         /* Controls styling */
+        .controls-wrapper { margin:12px auto; width:70%; text-align:left; }
         .controls { margin:12px auto; width:90%; max-width:980px; }
         .controls .row { display:flex; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:nowrap; }
         .controls .row1 { align-items:center; }
@@ -231,6 +238,23 @@
             .app-btn { flex: 0 0 120px; }
         }
 
+        .row.header-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            body { font-size: 14px; }
+            h1, h2, h3 { font-size: 18px !important; }
+            .row.header-controls { flex-direction: column; align-items: stretch; }
+            .main-row { grid-template-columns: 1fr; }
+            .controls-wrapper { width: 100%; padding: 0 6px; box-sizing: border-box; }
+            .analysis { width: 100%; margin: 20px auto; padding: 16px; }
+            .author-footer { padding: 15px; font-size: 13px; }
+            .rashi-chart { grid-template-columns: repeat(4, 60px); grid-template-rows: repeat(4,60px); }
+        }
+
         @media (max-width: 420px) {
             .controls .row { flex-direction:column; align-items:stretch; }
             .app-btn { width:100%; }
@@ -246,9 +270,9 @@
 </div>
 <div style="font-size:13px; text-align:center; color:#333; margin-bottom:12px;">Natal &amp; Transit Marriage Yoga Analyzer</div>
 
-<div style="margin:12px auto; width:70%; text-align:left;">
+<div class="controls-wrapper">
     <div class="controls">
-        <div class="row row1">
+        <div class="row row1 header-controls">
             <label for="natalInput"><strong>Natal Planets</strong></label>
             <span id="infoNatal" class="info-icon" title="Info">i</span>
             <input id="natalInput" class="form-control" type="text" placeholder="2,10,8,6,10,7,10,6,2,8" />
@@ -580,10 +604,11 @@
                 return `<tr><td>${planetName}</td><td>${dir}</td><td>${from}</td><td>${to}</td></tr>`;
             }
             let html = `<h4>Transit Table (Guru & Shani)</h4>`;
-            html += `<table class="status-table" style="margin-top:8px; width:125%;"><thead><tr><th>Planet</th><th>Dir</th><th>From</th><th>To</th></tr></thead><tbody>`;
+            html += `<div class="table-wrapper">`;
+            html += `<table class="status-table" style="margin-top:8px; width:100%;"><thead><tr><th>Planet</th><th>Dir</th><th>From</th><th>To</th></tr></thead><tbody>`;
             html += rowHtml('Shani', shaniRow);
             html += rowHtml('Guru', guruRow);
-            html += `</tbody></table>`;
+            html += `</tbody></table></div>`;
 
             el.innerHTML = html;
         }
@@ -736,11 +761,11 @@
         ];
 
         let html = `<h3>Transit Activation for Marriage</h3>`;
-        html += `<table class="status-table"><thead><tr><th>Parameter</th><th>Guru</th><th>Shani</th></tr></thead><tbody>`;
+        html += `<div class="table-wrapper"><table class="status-table"><thead><tr><th>Parameter</th><th>Guru</th><th>Shani</th></tr></thead><tbody>`;
         rows.forEach(r => {
             html += `<tr><td>${r.label}</td><td>${r.guru ? '<span class="yes">Yes</span>' : ''}</td><td>${r.shani ? '<span class="yes">Yes</span>' : ''}</td></tr>`;
         });
-        html += `</tbody></table>`;
+        html += `</tbody></table></div>`;
 
         // Append Dasha table if DOB and Moon degrees available
         try {
@@ -821,7 +846,7 @@
                         </div>
                     </div>`;
 
-                    html += `<table id="dasha-table" class="status-table dasha-table" style="width:100%;"><thead><tr><th>Dasha</th><th>From</th><th>To</th></tr></thead><tbody id="dasha-tbody"></tbody></table>`;
+                    html += `<div class="table-wrapper"><table id="dasha-table" class="status-table dasha-table" style="width:100%;"><thead><tr><th>Dasha</th><th>From</th><th>To</th></tr></thead><tbody id="dasha-tbody"></tbody></table></div>`;
                 }
             }
         } catch (e) { console.warn('Dasha calc failed', e); }
