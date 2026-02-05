@@ -91,6 +91,11 @@
             filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2));
         }
 
+        .logo-link {
+            display: inline-block;
+            text-decoration: none;
+        }
+
         .app-title {
             font-family: 'Crimson Pro', Georgia, serif;
             font-size: clamp(1.75rem, 5vw, 2.5rem);
@@ -871,7 +876,9 @@
 <!-- Header -->
 <header class="app-header">
     <div class="logo-container">
-        <img src="logo.gif" alt="Logo" />
+        <a class="logo-link" href="https://vaiswanara.com" aria-label="Visit vaiswanara.com">
+            <img src="logo.gif" alt="Logo" />
+        </a>
         <h1 class="app-title">Double Transit WebApp</h1>
         <div class="app-subtitle">Natal &amp; Transit Marriage Yoga Analyzer</div>
     </div>
