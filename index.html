@@ -1,95 +1,357 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Marriage Yoga Analyzer</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg,#f5f2ea,#fff);
-            color: #222;
-            text-align: center;
-            padding: 20px;
+        /* ===== CSS VARIABLES ===== */
+        :root {
+            --primary: #4a148c;
+            --primary-light: #7c43bd;
+            --primary-dark: #12005e;
+            --accent: #ff9800;
+            --accent-light: #ffc947;
+            --accent-dark: #c66900;
+            --success: #2e7d32;
+            --success-light: #4caf50;
+            --danger: #c62828;
+            --danger-light: #ef5350;
+            --bg-gradient-start: #faf8f5;
+            --bg-gradient-end: #f5f0e8;
+            --card-bg: #ffffff;
+            --text-primary: #1a1a2e;
+            --text-secondary: #5a5a6e;
+            --text-muted: #8a8a9a;
+            --border-color: #e8e0d5;
+            --shadow-sm: 0 2px 8px rgba(74, 20, 140, 0.08);
+            --shadow-md: 0 4px 20px rgba(74, 20, 140, 0.12);
+            --shadow-lg: 0 8px 32px rgba(74, 20, 140, 0.16);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ===== BASE STYLES ===== */
+        * {
             box-sizing: border-box;
-        }
-
-        h2 {
-            margin-top: 10px;
-        }
-
-        .main-row {
-            display: grid;
-            grid-template-columns: minmax(220px,320px) 1fr;
-            gap: 16px;
-            align-items: start;
-            margin-top: 12px;
-        }
-        .chart-column { text-align: center; }
-
-        .rashi-chart {
-            display: grid;
-            grid-template-columns: repeat(4, 100px);
-            grid-template-rows: repeat(4, 100px);
-            gap: 0;
-            background: white;
+            margin: 0;
             padding: 0;
-            border-radius: 0;
-            box-shadow: none;
-            width: 100%;
-            max-width: 350px;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        /* ===== HEADER ===== */
+        .app-header {
+            text-align: center;
+            padding: 24px 16px 16px;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        .logo-container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-container img {
+            display: block;
+            margin: 0 auto 12px;
+            max-width: 100px;
+            height: auto;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2));
+        }
+
+        .app-title {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: clamp(1.75rem, 5vw, 2.5rem);
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            letter-spacing: 0.5px;
+        }
+
+        .app-subtitle {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            margin-top: 6px;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== CONTROLS SECTION ===== */
+        .controls-section {
+            background: var(--card-bg);
+            margin: -20px 16px 20px;
+            padding: 20px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            z-index: 2;
+        }
+
+        .controls-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .control-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1 1 auto;
+        }
+
+        .control-label {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+
+        .form-control {
+            padding: 10px 14px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 0.9375rem;
+            font-family: inherit;
+            transition: var(--transition);
+            background: #fff;
+            min-width: 120px;
+            flex: 1;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(124, 67, 189, 0.15);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px 18px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: inherit;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(74, 20, 140, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            box-shadow: 0 4px 12px rgba(74, 20, 140, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            min-width: 32px;
+            border-radius: 50%;
+            font-size: 1rem;
+        }
+
+        /* ===== INFO ICON ===== */
+        .info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 2px 4px rgba(255, 152, 0, 0.3);
+        }
+
+        .info-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(255, 152, 0, 0.4);
+        }
+
+        /* ===== MESSAGE ===== */
+        .message {
+            font-size: 0.8125rem;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            margin-top: 8px;
+        }
+
+        .message-success {
+            background: rgba(46, 125, 50, 0.1);
+            color: var(--success);
+            border-left: 3px solid var(--success);
+        }
+
+        .message-error {
+            background: rgba(198, 40, 40, 0.1);
+            color: var(--danger);
+            border-left: 3px solid var(--danger);
+        }
+
+        .message-info {
+            background: rgba(74, 20, 140, 0.08);
+            color: var(--primary);
+            border-left: 3px solid var(--primary-light);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-container {
+            display: grid;
+            grid-template-columns: minmax(280px, 380px) 1fr;
+            gap: 24px;
+            padding: 0 16px 24px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
+        /* ===== CHART SECTION ===== */
+        .chart-section {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .section-title {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        /* ===== RASHI CHART ===== */
+        .rashi-chart {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            aspect-ratio: 1 / 1;
+            gap: 0;
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 360px;
+            margin: 0 auto;
+            border: 3px solid var(--primary);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+        }
+
         .rashi-box {
-            background: white;
-            border: 1px solid #000;
+            background: #fff;
+            border: 1px solid var(--border-color);
             position: relative;
             padding: 8px;
-            min-height: 75px;
-            font-size: 16px;
-            box-sizing: border-box;
-            overflow-wrap: break-word;
-            word-break: break-word;
-            white-space: normal;
-            border-radius: 0;
-            display: block;
+            min-height: 0;
+            font-size: 0.875rem;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+        }
+
+        .rashi-box:hover {
+            background: rgba(124, 67, 189, 0.03);
         }
 
         .rashi-number {
             font-weight: 700;
-            color: #000;
-            /* Hidden by user request: hide rashi numbers */
+            color: var(--text-muted);
+            font-size: 0.6875rem;
+            margin-bottom: 4px;
             display: none;
-            margin-bottom: 5px;
-            font-size: 13px;
         }
 
         .planet-names {
-            margin-top: 3px;
-            width: 100%;
-            text-align: left;
-            font-size: 17px;
-            color: #000;
-            box-sizing: border-box;
-            overflow-wrap: break-word;
-            word-break: break-word;
-            white-space: normal;
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            gap: 3px;
         }
 
         .planet-names span {
-            display: inline-block;
-            background: transparent;
-            color: #000;
-            padding: 0 6px 0 0;
-            margin: 0 6px 4px 0;
-            border-radius: 0;
-            font-weight: normal;
-            max-width: 100%;
-            box-sizing: border-box;
-            overflow-wrap: anywhere;
-            word-break: normal;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px 6px;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+            color: white;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
             white-space: nowrap;
-            vertical-align: top;
+            box-shadow: 0 1px 3px rgba(74, 20, 140, 0.2);
+        }
+
+        .planet-names span.transit {
+            background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 100%);
+            color: var(--primary-dark);
         }
 
         .chart-title {
@@ -98,10 +360,11 @@
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            background: white;
-            border-radius: 0;
-            border: 1px solid #000;
-            font-size: 12px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            font-size: 0.8125rem;
+            font-family: 'Crimson Pro', Georgia, serif;
+            letter-spacing: 0.5px;
         }
 
         /* Grid area placement */
@@ -124,189 +387,548 @@
             "b10 title title b5"
             "b9 b8 b7 b6"; }
 
-        .analysis {
-            margin: 30px auto;
-            width: 70%;
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.08);
-            text-align: left;
+        /* ===== TRANSIT TABLE ===== */
+        .transit-table-container {
+            margin-top: 20px;
         }
 
-        .highlight {
-            color: green;
-            font-weight: bold;
+        .transit-table-container h4 {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 1rem;
+            color: var(--primary);
+            margin-bottom: 12px;
+            text-align: center;
         }
 
-        /* Marriage Status table styles */
+        /* ===== ANALYSIS SECTION ===== */
+        .analysis-section {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .analysis-content h3 {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 24px 0 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .analysis-content h3:first-child {
+            margin-top: 0;
+        }
+
+        .analysis-content h4 {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 20px 0 12px;
+        }
+
+        /* ===== TABLES ===== */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 16px;
+        }
+
         .status-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 12px;
-            font-size: 15px;
+            font-size: 0.875rem;
+            background: #fff;
         }
-        .status-table th, .status-table td {
-            border: 1px solid #eee;
-            padding: 8px 10px;
-            text-align: left;
+
+        .status-table thead {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
         }
-        .dasha-table th, .dasha-table td {
-            padding: 6px 8px;
-            font-size: 14px;
-        }
-        /* Center Dasha label and date columns */
-        .dasha-table th:first-child, .dasha-table td:first-child { text-align: center; }
-        .dasha-table th:nth-child(2), .dasha-table td:nth-child(2),
-        .dasha-table th:nth-child(3), .dasha-table td:nth-child(3) { text-align: center; }
+
         .status-table th {
-            background: #faf6ef;
-            font-weight: 700;
-        }
-        .yes {
-            color: #0b7a21;
-            font-weight: 700;
-        }
-        .no {
-            color: #c53030;
-            font-weight: 700;
-        }
-        .dasha-current {
-            background: #f2f7ff;
-            font-weight: 700;
+            padding: 12px 14px;
+            font-weight: 600;
+            text-align: left;
+            white-space: nowrap;
         }
 
-        .author-footer {
-            margin-top: 30px;
-            background: #f9f9f9;
-            border-top: 1px solid #e0e0e0;
-            padding: 16px 18px;
+        .status-table th:first-child {
+            border-radius: var(--radius-sm) 0 0 0;
+        }
+
+        .status-table th:last-child {
+            border-radius: 0 var(--radius-sm) 0 0;
+        }
+
+        .status-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .status-table tbody tr:hover {
+            background: rgba(124, 67, 189, 0.04);
+        }
+
+        .status-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status-table tbody tr:last-child td:first-child {
+            border-radius: 0 0 0 var(--radius-sm);
+        }
+
+        .status-table tbody tr:last-child td:last-child {
+            border-radius: 0 0 var(--radius-sm) 0;
+        }
+
+        /* Dasha table specific */
+        .dasha-table th,
+        .dasha-table td {
+            padding: 10px 12px;
+            font-size: 0.8125rem;
+        }
+
+        .dasha-table th:first-child,
+        .dasha-table td:first-child,
+        .dasha-table th:nth-child(2),
+        .dasha-table td:nth-child(2),
+        .dasha-table th:nth-child(3),
+        .dasha-table td:nth-child(3) {
             text-align: center;
-            font-size: 14px;
-            color: #333;
-        }
-        .author-footer .title { font-weight: 600; margin-bottom: 6px; }
-        .author-footer .email { margin-top: 6px; color: #444; }
-
-        /* Two-column layout for analysis tables */
-        .analysis-grid { display: flex; gap: 18px; align-items: flex-start; }
-        .analysis-col { flex: 1; }
-
-        @media (max-width: 900px) {
-            .analysis-grid { flex-direction: column; }
         }
 
-        .table-wrapper { overflow-x: auto; width: 100%; }
-        .table-wrapper table { min-width: 520px; }
-
-        @media (max-width: 800px) {
-            .rashi-chart { grid-template-columns: repeat(4, 70px); grid-template-rows: repeat(4,70px); }
+        .dasha-current {
+            background: rgba(255, 152, 0, 0.12) !important;
+            font-weight: 600;
         }
 
-        /* Date input and CSV message */
-        #transitDate, #natalInput { border: 1px solid #d8cfc0; border-radius: 4px; }
-        #loadTransitBtn, #loadNatalBtn { background: #0366d6; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
-        #loadTransitBtn:hover, #loadNatalBtn:hover { opacity: 0.95; }
-        #dataMessage { font-size: 13px; }
-        #natalMessage { font-size: 13px; }
-        .natal-help { font-size: 13px; }
-        .csv-errors { margin:8px 0 0 0; padding-left: 18px; color: #c53030; }
-        .csv-errors li { margin-bottom: 4px; }
-
-        /* Controls styling */
-        .controls-wrapper { margin:12px auto; width:70%; text-align:left; }
-        .controls { margin:12px auto; width:90%; max-width:980px; }
-        .controls .row { display:flex; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:nowrap; }
-        .controls .row1 { align-items:center; }
-        .form-control { padding:8px 10px; border: 1px solid #d8cfc0; border-radius:6px; min-width:120px; }
-        .app-btn { background:#0366d6; color:#fff; border:none; border-radius:6px; padding:8px 12px; cursor:pointer; height:38px; min-width:110px; }
-        .app-btn:hover { opacity:0.95; }
-        .note { margin-left:6px; color:#555; font-size:13px; }
-        #csvFileInput { display:none; }
-
-        /* Info icon and popup */
-        .info-icon { display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; background:#0366d6; color:#fff; font-size:12px; cursor:pointer; margin-left:6px; }
-        .info-popup { display:none; position:fixed; left:50%; top:20%; transform:translateX(-50%); background:#fff; border:1px solid #ddd; padding:12px; max-width:380px; box-shadow:0 6px 24px rgba(0,0,0,0.12); border-radius:8px; z-index:1200; }
-        .info-popup .close { float:right; cursor:pointer; color:#666; margin-left:8px; }
-
-        @media (max-width: 860px) {
-            .main-row { grid-template-columns: 1fr; }
-            .rashi-chart { grid-template-columns: repeat(4, 70px); grid-template-rows: repeat(4,70px); }
-            .controls { width:95%; }
-            .controls .row { gap:8px; }
-            .form-control { min-width: 110px; flex: 1 1 140px; }
-            .app-btn { flex: 0 0 120px; }
+        /* ===== YES/NO BADGES ===== */
+        .yes {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: rgba(46, 125, 50, 0.12);
+            color: var(--success);
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.75rem;
         }
 
-        .row.header-controls {
+        .yes::before {
+            content: '✓';
+            font-weight: 700;
+        }
+
+        .no {
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        /* ===== DASHA NAVIGATION ===== */
+        .dasha-nav {
             display: flex;
             flex-wrap: wrap;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+            padding: 16px;
+            background: rgba(124, 67, 189, 0.06);
+            border-radius: var(--radius-md);
+        }
+
+        .dasha-nav-group {
+            display: flex;
+            align-items: center;
             gap: 10px;
         }
 
+        .dasha-nav-label {
+            font-weight: 600;
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            min-width: 80px;
+        }
+
+        .dasha-nav-value {
+            font-weight: 700;
+            font-size: 0.9375rem;
+            color: var(--primary);
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .dasha-nav .btn-icon {
+            background: var(--card-bg);
+            color: var(--primary);
+            border: 2px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .dasha-nav .btn-icon:hover {
+            border-color: var(--primary-light);
+            background: rgba(124, 67, 189, 0.08);
+        }
+
+        /* ===== INFO POPUP ===== */
+        .info-popup {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--card-bg);
+            border: none;
+            padding: 24px;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--radius-lg);
+            z-index: 1200;
+        }
+
+        .info-popup.active {
+            display: block;
+        }
+
+        .info-popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1199;
+            backdrop-filter: blur(2px);
+        }
+
+        .info-popup-overlay.active {
+            display: block;
+        }
+
+        .info-popup .close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-muted);
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .info-popup .close:hover {
+            background: rgba(0,0,0,0.05);
+            color: var(--text-primary);
+        }
+
+        .info-popup h4 {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 1.125rem;
+            color: var(--primary);
+            margin-bottom: 12px;
+            padding-right: 32px;
+        }
+
+        .info-popup code {
+            display: inline-block;
+            background: rgba(124, 67, 189, 0.1);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.8125rem;
+            margin-top: 8px;
+        }
+
+        /* ===== FOOTER ===== */
+        .author-footer {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 32px 24px;
+            text-align: center;
+            margin-top: 32px;
+        }
+
+        .author-footer .title {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: white;
+        }
+
+        .author-footer a {
+            color: var(--accent-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .author-footer a:hover {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+
+        .author-footer .email {
+            margin-top: 12px;
+            font-size: 0.9375rem;
+        }
+
+        /* ===== CSV ERRORS ===== */
+        .csv-errors {
+            margin: 8px 0 0 0;
+            padding-left: 20px;
+            color: var(--danger);
+            font-size: 0.8125rem;
+        }
+
+        .csv-errors li {
+            margin-bottom: 4px;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .chart-section {
+                max-width: 420px;
+                margin: 0 auto;
+                width: 100%;
+            }
+        }
+
         @media (max-width: 768px) {
-            body { font-size: 14px; }
-            h1, h2, h3 { font-size: 18px !important; }
-            .row.header-controls { flex-direction: column; align-items: stretch; }
-            .main-row { grid-template-columns: 1fr; }
-            .controls-wrapper { width: 100%; padding: 0 6px; box-sizing: border-box; }
-            .analysis { width: 100%; margin: 20px auto; padding: 16px; }
-            .author-footer { padding: 15px; font-size: 13px; }
-            .rashi-chart { grid-template-columns: repeat(4, 60px); grid-template-rows: repeat(4,60px); }
+            html {
+                font-size: 15px;
+            }
+
+            .app-header {
+                padding: 20px 16px 24px;
+            }
+
+            .logo-container img {
+                max-width: 80px;
+            }
+
+            .controls-section {
+                margin: -16px 12px 16px;
+                padding: 16px;
+            }
+
+            .control-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .control-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 6px;
+            }
+
+            .control-label {
+                font-size: 0.8125rem;
+            }
+
+            .form-control {
+                width: 100%;
+                min-width: unset;
+            }
+
+            .btn {
+                width: 100%;
+                padding: 12px 16px;
+            }
+
+            .main-container {
+                padding: 0 12px 20px;
+            }
+
+            .rashi-chart {
+                max-width: 100%;
+            }
+
+            .rashi-box {
+                padding: 6px;
+                font-size: 0.75rem;
+            }
+
+            .planet-names span {
+                padding: 2px 4px;
+                font-size: 0.6875rem;
+            }
+
+            .analysis-section {
+                padding: 16px;
+            }
+
+            .table-wrapper {
+                margin: 0 -4px;
+                border-radius: 0;
+            }
+
+            .status-table {
+                font-size: 0.8125rem;
+            }
+
+            .status-table th,
+            .status-table td {
+                padding: 10px 8px;
+            }
+
+            .dasha-nav {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+
+            .dasha-nav-group {
+                justify-content: space-between;
+            }
+
+            .dasha-nav-label {
+                min-width: auto;
+            }
+
+            .author-footer {
+                padding: 24px 16px;
+            }
         }
 
-        @media (max-width: 420px) {
-            .controls .row { flex-direction:column; align-items:stretch; }
-            .app-btn { width:100%; }
+        @media (max-width: 480px) {
+            .rashi-chart {
+                border-width: 2px;
+            }
+
+            .rashi-box {
+                padding: 4px;
+            }
+
+            .planet-names {
+                gap: 2px;
+            }
+
+            .planet-names span {
+                font-size: 0.625rem;
+                padding: 1px 3px;
+            }
+
+            .chart-title {
+                font-size: 0.6875rem;
+            }
+
+            .status-table th,
+            .status-table td {
+                padding: 8px 6px;
+                font-size: 0.75rem;
+            }
         }
 
-    </style>  
+        /* ===== PRINT STYLES ===== */
+        @media print {
+            .app-header {
+                background: #fff !important;
+                color: #000;
+                box-shadow: none;
+            }
+
+            .controls-section,
+            .info-icon,
+            .dasha-nav .btn-icon {
+                display: none !important;
+            }
+
+            .main-container {
+                display: block;
+            }
+
+            .chart-section,
+            .analysis-section {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                break-inside: avoid;
+            }
+        }
+    </style>
 </head>
 <body>
 
-<div style="text-align:center; margin:0 0 4px 0; width:100%;">
-    <img src="logo.gif" alt="Logo" style="display:block; margin:0 auto 4px auto; max-width:120px; height:auto;" />
-    <h2 style="font-size:30px; margin:0;">Double Transit WebAppp</h2>
+<!-- Header -->
+<header class="app-header">
+    <div class="logo-container">
+        <img src="logo.gif" alt="Logo" />
+        <h1 class="app-title">Double Transit WebApp</h1>
+        <div class="app-subtitle">Natal &amp; Transit Marriage Yoga Analyzer</div>
+    </div>
+</header>
+
+<!-- Controls Section -->
+<section class="controls-section">
+    <div class="controls-grid">
+        <!-- Row 1: Natal & Transit -->
+        <div class="control-row">
+            <div class="control-group" style="flex: 2;">
+                <label class="control-label" for="natalInput">Natal Planets</label>
+                <span id="infoNatal" class="info-icon" title="Info">i</span>
+                <input id="natalInput" class="form-control" type="text" placeholder="2,10,8,6,10,7,10,6,2,8" />
+                <button id="loadNatalBtn" class="btn btn-primary">Load Natal</button>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="transitDate">Transit Date:</label>
+                <input id="transitDate" class="form-control" type="date" />
+                <button id="loadTransitBtn" class="btn btn-primary">Load Transit</button>
+            </div>
+        </div>
+        <div id="natalMessage" class="message"></div>
+
+        <!-- Row 2: DOB & Dasha -->
+        <div class="control-row">
+            <div class="control-group">
+                <label class="control-label" for="dobInput">DOB:</label>
+                <input id="dobInput" class="form-control" type="date" />
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="moonDegInput">Moon long:</label>
+                <input id="moonDegInput" class="form-control" type="text" placeholder="e.g. 12.34" />
+            </div>
+            <div class="control-group">
+                <button id="calcDashaBtn" class="btn btn-primary">Calculate Dasha</button>
+                <div id="dataMessage" class="message" style="margin: 0;"></div>
+            </div>
+        </div>
+        <div id="dashaMessage" class="message"></div>
+    </div>
+</section>
+
+<!-- Info Popup -->
+<div id="infoPopupOverlay" class="info-popup-overlay"></div>
+<div id="infoPopup" class="info-popup" role="dialog" aria-hidden="true">
+    <span class="close" id="infoClose">✕</span>
+    <h4>How to enter Natal Planets</h4>
+    <p>Enter Natal Planets in this order:</p>
+    <code>Lg,Su,Ch,Ku,Bu,Gu,Sk,Sa,Ra,Ke</code>
 </div>
-<div style="font-size:13px; text-align:center; color:#333; margin-bottom:12px;">Natal &amp; Transit Marriage Yoga Analyzer</div>
 
-<div class="controls-wrapper">
-    <div class="controls">
-        <div class="row row1 header-controls">
-            <label for="natalInput"><strong>Natal Planets</strong></label>
-            <span id="infoNatal" class="info-icon" title="Info">i</span>
-            <input id="natalInput" class="form-control" type="text" placeholder="2,10,8,6,10,7,10,6,2,8" />
-            <button id="loadNatalBtn" class="app-btn">Load Natal</button>
-
-            <label for="transitDate" style="margin-left:12px;"><strong>Transit Date:</strong></label>
-            <input id="transitDate" class="form-control" type="date" />
-            <button id="loadTransitBtn" class="app-btn">Load Transit</button>
-            <div id="natalMessage" class="note"></div>
-        </div>
-
-        <div class="row row2">
-            <label for="dobInput"><strong>DOB:</strong></label>
-            <input id="dobInput" class="form-control" type="date" />
-
-            <label for="moonDegInput"><strong>Moon long:</strong></label>
-            <input id="moonDegInput" class="form-control" type="text" placeholder="e.g. 12.34" />
-
-            <button id="calcDashaBtn" class="app-btn">Calculate Dasha</button>
-            <div id="dataMessage" class="note"></div>
-        </div>
-        <div id="dashaMessage" class="note" style="margin-top:6px;"></div>
-    </div>
-
-    <div id="infoPopup" class="info-popup" role="dialog" aria-hidden="true">
-        <span class="close" id="infoClose">✕</span>
-        <div><strong>How to enter Natal Planets</strong></div>
-        <div style="margin-top:8px;">Enter Natal Planets in this order: <br/><code>Lg,Su,Ch,Ku,Bu,Gu,Sk,Sa,Ra,Ke</code></div>
-    </div>
-</div> 
-
-<div class="main-row">
-    <div class="chart-column natal-column">
-        <h3>Natal Chart (with Transit)</h3>
+<!-- Main Content -->
+<main class="main-container">
+    <!-- Chart Column -->
+    <div class="chart-section">
+        <h3 class="section-title">Natal Chart (with Transit)</h3>
         <div class="rashi-chart natal simple" id="natalChart">
             <div class="rashi-box b12"><span class="rashi-number">12</span><div class="planet-names" id="natal-box12"></div></div>
             <div class="rashi-box b1"><span class="rashi-number">1</span><div class="planet-names" id="natal-box1"></div></div>
@@ -325,13 +947,24 @@
             <div class="rashi-box b7"><span class="rashi-number">7</span><div class="planet-names" id="natal-box7"></div></div>
             <div class="rashi-box b6"><span class="rashi-number">6</span><div class="planet-names" id="natal-box6"></div></div>
         </div>
-        <div id="transitTable" style="margin-top:10px;"></div>
+        <div id="transitTable" class="transit-table-container"></div>
     </div>
 
-    <div class="right-column">
-        <div class="analysis" id="analysis"></div>
+    <!-- Analysis Column -->
+    <div class="analysis-section">
+        <div class="analysis-content" id="analysis"></div>
     </div>
-</div>
+</main>
+
+<!-- Footer -->
+<footer class="author-footer">
+    <div class="title">About the Author</div>
+    <div>
+        This application was created by Srikanth Dharmavaram as a teaching aid for students of Vedic Astrology.
+        It is built with the aim of simplifying complex concepts like Dasha timing and Double Transit activation for practical learning and research.
+    </div>
+    <div class="email"><a href="https://vaiswanara.com" target="_blank" rel="noopener">https://vaiswanara.com</a></div>
+</footer>
 
 <script src="dasha.js"></script>
 <script>
@@ -508,12 +1141,14 @@
                     analyzeMarriage();
                     displayTransitTable(date, resObj.guruRow, resObj.shaniRow);
                     if (!errors || !errors.length) {
+                        dataMessage.className = 'message message-success';
                         dataMessage.textContent = `Loaded transit for ${formatDateDDMMYYYY(date)} from CSV.`;
                     } else {
                         dataMessage.innerHTML += `<div>Loaded transit for ${formatDateDDMMYYYY(date)} from CSV (some rows had errors).</div>`;
                     }
                 } else {
                     if (!errors || !errors.length){
+                        dataMessage.className = 'message message-info';
                         dataMessage.textContent = `No Guru/Shani rows found in CSV for ${formatDateDDMMYYYY(date)}. Using fallback transit.`;
                     } else {
                         dataMessage.innerHTML += `<div>No Guru/Shani rows usable for ${formatDateDDMMYYYY(date)}. Using fallback transit.</div>`;
@@ -522,6 +1157,7 @@
                 }
             } catch (err){
                 console.warn(err);
+                dataMessage.className = 'message message-error';
                 dataMessage.textContent = 'Could not fetch CSV automatically. You can upload the CSV with the file picker.';
                 displayTransitTable(date, null, null);
             }
@@ -553,6 +1189,7 @@
                         if (errors.length){
                             dataMessage.innerHTML += `<div>Loaded transit for ${formatDateDDMMYYYY(date)} from uploaded CSV (some rows had errors).</div>`;
                         } else {
+                            dataMessage.className = 'message message-success';
                             dataMessage.textContent = `Loaded transit for ${formatDateDDMMYYYY(date)} from uploaded CSV.`;
                         }
                     } else {
@@ -561,6 +1198,7 @@
                     }
                 }catch(err){
                     console.warn(err);
+                    dataMessage.className = 'message message-error';
                     dataMessage.textContent = 'Error parsing uploaded CSV.';
                 }
             };
@@ -571,7 +1209,11 @@
         // Load button clicked
         loadBtn.addEventListener('click', () => {
             const date = parseDateFlexible(dateInput.value);
-            if (!date){ dataMessage.textContent = 'Please select a valid date.'; return; }
+            if (!date){ 
+                dataMessage.className = 'message message-error';
+                dataMessage.textContent = 'Please select a valid date.'; 
+                return; 
+            }
             fetchCSVAndApply(date);
         });
 
@@ -584,7 +1226,12 @@
         let dateInputTimer = null;
         function scheduleFetchDate(){
             const date = parseDateFlexible(dateInput.value);
-            if (!date){ dataMessage.textContent = 'Please select a valid date.'; return; }
+            if (!date){ 
+                dataMessage.className = 'message message-error';
+                dataMessage.textContent = 'Please select a valid date.'; 
+                return; 
+            }
+            dataMessage.className = 'message message-info';
             dataMessage.textContent = 'Loading transit for ' + formatDateDDMMYYYY(date) + '...';
             if (dateInputTimer) clearTimeout(dateInputTimer);
             dateInputTimer = setTimeout(() => { fetchCSVAndApply(date); dateInputTimer = null; }, 300);
@@ -642,9 +1289,14 @@
 
         loadNatalBtn.addEventListener('click', () => {
             const parsed = parseNatalValue(natalInput.value);
-            if (!parsed.ok){ natalMessage.innerHTML = `<span class="no">${parsed.error}</span>`; return; }
+            if (!parsed.ok){ 
+                natalMessage.className = 'message message-error';
+                natalMessage.innerHTML = parsed.error; 
+                return; 
+            }
             applyNatalArray(parsed.nums);
-            natalMessage.innerHTML = `<span class="yes">Natal chart updated</span>`;
+            natalMessage.className = 'message message-success';
+            natalMessage.innerHTML = 'Natal chart updated successfully';
         });
         natalInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') loadNatalBtn.click(); });
 
@@ -664,18 +1316,41 @@
     // Calculate button hookup: re-run analysis which will include dasha table if inputs provided
     document.getElementById('calcDashaBtn').addEventListener('click', () => {
         analyzeMarriage();
-        const msg = document.getElementById('dashaMessage'); if (msg) msg.textContent = 'Dasha calculated (see Dasha table below).';
+        const msg = document.getElementById('dashaMessage'); 
+        if (msg) {
+            msg.className = 'message message-success';
+            msg.textContent = 'Dasha calculated (see Dasha table below).';
+        }
     });
 
     // Info popup handlers for Natal Planets
     (function(){
         const info = document.getElementById('infoNatal');
         const popup = document.getElementById('infoPopup');
+        const overlay = document.getElementById('infoPopupOverlay');
         const close = document.getElementById('infoClose');
+        
+        function openPopup() {
+            popup.classList.add('active');
+            overlay.classList.add('active');
+            popup.setAttribute('aria-hidden','false');
+        }
+        
+        function closePopup() {
+            popup.classList.remove('active');
+            overlay.classList.remove('active');
+            popup.setAttribute('aria-hidden','true');
+        }
+        
         if (info && popup){
-            info.addEventListener('click', () => { popup.style.display = 'block'; popup.setAttribute('aria-hidden','false'); });
-            close.addEventListener('click', () => { popup.style.display = 'none'; popup.setAttribute('aria-hidden','true'); });
-            window.addEventListener('click', (e) => { if (e.target === popup) { popup.style.display='none'; popup.setAttribute('aria-hidden','true'); } });
+            info.addEventListener('click', openPopup);
+            close.addEventListener('click', closePopup);
+            overlay.addEventListener('click', closePopup);
+            window.addEventListener('keydown', (e) => { 
+                if (e.key === 'Escape' && popup.classList.contains('active')) {
+                    closePopup();
+                }
+            });
         }
     })();
 
@@ -697,6 +1372,7 @@
             if (box) {
                 const span = document.createElement("span");
                 span.textContent = 'Tg';
+                span.classList.add('transit');
                 box.appendChild(span);
             }
         }
@@ -706,6 +1382,7 @@
             if (box) {
                 const span = document.createElement("span");
                 span.textContent = 'Ts';
+                span.classList.add('transit');
                 box.appendChild(span);
             }
         }
@@ -745,19 +1422,24 @@
         const lagnaLord = getLord(lagna);
         const lagnaLordSign = natal[lagnaLord];
         const janmaRashi = natal.Ch;
+        const secondHouse = addSign(natal.Lagna, 1);
+        const eleventhHouse = addSign(natal.Lagna, 10);
+        const natalSecondLord = getLord(secondHouse);
+        const natalEleventhLord = getLord(eleventhHouse);
+        const planetKeys = ['Su','Ch','Ku','Bu','Gu','Sk','Sa','Ra','Ke'];
+        const natalSeventhHousePlanets = planetKeys.filter(p => natal[p] === seventhHouse);
 
         const rows = [
             { label: 'Posited in 7th House', guru: isPosited(guruSign, seventhHouse), shani: isPosited(shaniSign, seventhHouse) },
             { label: 'Aspecting 7th House', guru: isAspecting('Gu', guruSign, seventhHouse), shani: isAspecting('Sa', shaniSign, seventhHouse) },
-            { label: 'Aspecting 7th Lord', guru: isAspecting('Gu', guruSign, seventhLordSign), shani: isAspecting('Sa', shaniSign, seventhLordSign) },
             { label: 'Conjunction with 7th Lord', guru: isConjunct(guruSign, seventhLordSign), shani: isConjunct(shaniSign, seventhLordSign) },
-            { label: 'Aspecting Lagna', guru: isAspecting('Gu', guruSign, lagna), shani: isAspecting('Sa', shaniSign, lagna) },
+            { label: 'Aspecting 7th Lord', guru: isAspecting('Gu', guruSign, seventhLordSign), shani: isAspecting('Sa', shaniSign, seventhLordSign) },
             { label: 'Posited in Lagna', guru: isPosited(guruSign, lagna), shani: isPosited(shaniSign, lagna) },
-            { label: 'Aspecting Janma Rashi', guru: isAspecting('Gu', guruSign, janmaRashi), shani: isAspecting('Sa', shaniSign, janmaRashi) },
-            { label: 'Posited in Janma Rashi', guru: isPosited(guruSign, janmaRashi), shani: isPosited(shaniSign, janmaRashi) },
+            { label: 'Aspecting Lagna', guru: isAspecting('Gu', guruSign, lagna), shani: isAspecting('Sa', shaniSign, lagna) },
             { label: 'Conjoined with Lagna Lord', guru: isConjunct(guruSign, lagnaLordSign), shani: isConjunct(shaniSign, lagnaLordSign) },
             { label: 'Aspecting Lagna Lord', guru: isAspecting('Gu', guruSign, lagnaLordSign), shani: isAspecting('Sa', shaniSign, lagnaLordSign) },
-            { label: 'Aspecting Chandra', guru: isAspecting('Gu', guruSign, janmaRashi), shani: isAspecting('Sa', shaniSign, janmaRashi) }
+            { label: 'Posited in Janma Rashi', guru: isPosited(guruSign, janmaRashi), shani: isPosited(shaniSign, janmaRashi) },
+            { label: 'Aspecting Janma Rashi', guru: isAspecting('Gu', guruSign, janmaRashi), shani: isAspecting('Sa', shaniSign, janmaRashi) }
         ];
 
         let html = `<h3>Transit Activation for Marriage</h3>`;
@@ -824,25 +1506,47 @@
                     // store dasha groups and current index for navigation
                     window._dashaState = { groups, order, currentMahaIdx, currentAntarIdx, currentPratyIdx };
 
-                    html += `<div style="height:12px;"></div><h4>Dasha (Mahadasha -> Antardasha -> Pratyantara)</h4>`;
-                    html += `<div class="dasha-nav" style="display:flex;align-items:center;gap:16px;margin-bottom:6px;flex-wrap:nowrap;">
-                        <div style="display:flex;align-items:center;gap:8px;">
-                            <strong style="min-width:90px;">Mahadasha</strong>
-                            <button id="maha-prev" class="app-btn" style="min-width:36px;padding:6px 8px;">&lt;</button>
-                            <span id="maha-indicator" style="font-weight:700">${order[currentMahaIdx]}</span>
-                            <button id="maha-next" class="app-btn" style="min-width:36px;padding:6px 8px;">&gt;</button>
+                    const currentMaha = mahaKey;
+                    const currentAntar = antarKey;
+                    const currentPraty = pratyRows[currentPratyIdx] ? pratyRows[currentPratyIdx].pratyantara : null;
+                    const matchesDasha = (planets, target) => !!(planets && target && planets.includes(target));
+                    const dashaSupportRows = [
+                        { label: '7th Lord Dasha', planets: [seventhLord] },
+                        { label: 'Planets in Natal 7th House Dasha', planets: natalSeventhHousePlanets },
+                        { label: 'Venus (Shukra) Dasha', planets: ['Sk'] },
+                        { label: '2nd Lord Dasha', planets: [natalSecondLord] },
+                        { label: '11th Lord Dasha', planets: [natalEleventhLord] }
+                    ];
+
+                    html += `<h4>Dasha Support for Marriage</h4>`;
+                    html += `<div class="table-wrapper"><table class="status-table"><thead><tr><th>Parameter</th><th>Maha</th><th>Antar</th><th>Praty</th></tr></thead><tbody>`;
+                    dashaSupportRows.forEach(r => {
+                        const mahaYes = matchesDasha(r.planets, currentMaha);
+                        const antarYes = matchesDasha(r.planets, currentAntar);
+                        const pratyYes = matchesDasha(r.planets, currentPraty);
+                        html += `<tr><td>${r.label}</td><td>${mahaYes ? '<span class="yes">Yes</span>' : ''}</td><td>${antarYes ? '<span class="yes">Yes</span>' : ''}</td><td>${pratyYes ? '<span class="yes">Yes</span>' : ''}</td></tr>`;
+                    });
+                    html += `</tbody></table></div>`;
+
+                    html += `<h4>Dasha (Mahadasha &rarr; Antardasha &rarr; Pratyantara)</h4>`;
+                    html += `<div class="dasha-nav">
+                        <div class="dasha-nav-group">
+                            <span class="dasha-nav-label">Mahadasha</span>
+                            <button id="maha-prev" class="btn btn-icon">&lt;</button>
+                            <span id="maha-indicator" class="dasha-nav-value">${order[currentMahaIdx]}</span>
+                            <button id="maha-next" class="btn btn-icon">&gt;</button>
                         </div>
-                        <div style="display:flex;align-items:center;gap:8px;">
-                            <strong style="min-width:90px;">Antardasha</strong>
-                            <button id="antar-prev" class="app-btn" style="min-width:36px;padding:6px 8px;">&lt;</button>
-                            <span id="antar-indicator" style="font-weight:700">${antarOrder[currentAntarIdx]}</span>
-                            <button id="antar-next" class="app-btn" style="min-width:36px;padding:6px 8px;">&gt;</button>
+                        <div class="dasha-nav-group">
+                            <span class="dasha-nav-label">Antardasha</span>
+                            <button id="antar-prev" class="btn btn-icon">&lt;</button>
+                            <span id="antar-indicator" class="dasha-nav-value">${antarOrder[currentAntarIdx]}</span>
+                            <button id="antar-next" class="btn btn-icon">&gt;</button>
                         </div>
-                        <div style="display:flex;align-items:center;gap:8px;">
-                            <strong style="min-width:90px;">Pratyantara</strong>
-                            <button id="praty-prev" class="app-btn" style="min-width:36px;padding:6px 8px;">&lt;</button>
-                            <span id="praty-indicator" style="font-weight:700">${pratyRows[currentPratyIdx].pratyantara}</span>
-                            <button id="praty-next" class="app-btn" style="min-width:36px;padding:6px 8px;">&gt;</button>
+                        <div class="dasha-nav-group">
+                            <span class="dasha-nav-label">Pratyantara</span>
+                            <button id="praty-prev" class="btn btn-icon">&lt;</button>
+                            <span id="praty-indicator" class="dasha-nav-value">${pratyRows[currentPratyIdx].pratyantara}</span>
+                            <button id="praty-next" class="btn btn-icon">&gt;</button>
                         </div>
                     </div>`;
 
@@ -991,15 +1695,6 @@
 
     analyzeMarriage();
 </script>
-
-<footer class="author-footer">
-    <div class="title">About the Author</div>
-    <div>
-        This application was created by Srikanth Dharmavaram as a teaching aid for students of Vedic Astrology.
-        It is built with the aim of simplifying complex concepts like Dasha timing and Double Transit activation for practical learning and research.
-    </div>
-    <div class="email"><a href="https://vaiswanara.com" target="_blank" rel="noopener">https://vaiswanara.com</a></div>
-</footer>
 
 </body>
 </html>
